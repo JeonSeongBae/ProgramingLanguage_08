@@ -455,7 +455,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) + int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) + int(lookupTable(l_node.next).value))
 
     def minus(node):
         l_node = node.value.next
@@ -467,7 +467,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) - int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) - int(lookupTable(l_node.next).value))
 
     def multiple(node):
         l_node = node.value.next
@@ -479,7 +479,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) * int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) * int(lookupTable(l_node.next).value))
 
     def divide(node):
         l_node = node.value.next
@@ -491,7 +491,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) / int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) / int(lookupTable(l_node.next).value))
 
     def lt(node):
         l_node = node.value.next
