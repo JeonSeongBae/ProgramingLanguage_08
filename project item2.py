@@ -455,7 +455,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) + int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) + int(lookupTable(l_node.next).value))
 
     def minus(node):
         l_node = node.value.next
@@ -467,7 +467,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) - int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) - int(lookupTable(l_node.next).value))
 
     def multiple(node):
         l_node = node.value.next
@@ -479,7 +479,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) * int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) * int(lookupTable(l_node.next).value))
 
     def divide(node):
         l_node = node.value.next
@@ -491,7 +491,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(l_node.value) / int(l_node.next.value))
+        return Node(l_node.type, int(lookupTable(l_node).value) / int(lookupTable(l_node.next).value))
 
     def lt(node):
         l_node = node.value.next
@@ -572,9 +572,12 @@ def run_func(op_code_node):
         return wrapper_new_list
 
     def define(node):
-        l_node = run_expr(node.value.next)
+        l_node = node.value.next
         result = strip_quote(l_node).value
-        temp = insertTable(result, run_expr(l_node.next).value)
+        if result in inserTable:
+            temp = inserTable[result] = run_expr(l_node.next).value
+        else:
+            temp = insertTable(result, run_expr(l_node.next).value)
         print result, temp
 
     table = {}
@@ -611,6 +614,15 @@ def insertTable(id, value):
     inserTable[id] = value
     return inserTable[id]
 
+def lookupTable(id):
+    firstTemp = id.value
+    if firstTemp in inserTable:
+        temp = inserTable[firstTemp]
+        if type(temp) is int or type(temp) is str:
+            return Node(TokenType.INT, temp)
+        return Node(TokenType.LIST, temp)
+    return id
+
 def run_expr(root_node):
     """
     :type root_node : Node
@@ -618,11 +630,17 @@ def run_expr(root_node):
     if root_node is None:
         return None
     if root_node.type is TokenType.ID:
+<<<<<<< HEAD
         if root_node.value in inserTable:
             # return Node(root_node.type,root_node.value)
             return lookupTable(root_node)
         # lookupTable(root_node)
         return root_node
+=======
+        x = root_node
+        y = lookupTable(root_node)
+        return lookupTable(root_node)
+>>>>>>> 65d84e1d015551765a179b932d437bb3a036dd9b
     elif root_node.type is TokenType.INT:
         return root_node
     elif root_node.type is TokenType.TRUE:
