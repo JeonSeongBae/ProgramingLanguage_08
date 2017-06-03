@@ -630,17 +630,9 @@ def run_expr(root_node):
     if root_node is None:
         return None
     if root_node.type is TokenType.ID:
-<<<<<<< HEAD
-        if root_node.value in inserTable:
-            # return Node(root_node.type,root_node.value)
-            return lookupTable(root_node)
-        # lookupTable(root_node)
-        return root_node
-=======
         x = root_node
         y = lookupTable(root_node)
         return lookupTable(root_node)
->>>>>>> 65d84e1d015551765a179b932d437bb3a036dd9b
     elif root_node.type is TokenType.INT:
         return root_node
     elif root_node.type is TokenType.TRUE:
@@ -736,12 +728,46 @@ def Test_method(input):
 
 
 def Test_All():
-    test_input = 0
-    while test_input != 'quit':
-        try:
-            test_input = raw_input('> ')
-            print "...",
-            Test_method(test_input)
-        except:
-            print "실행 할 수 없는 입력입니다."
+    # test_input = 0
+    # while test_input != 'quit':
+    #     try:
+    #         test_input = raw_input('> ')
+    #         print "...",
+    #         Test_method(test_input)
+    #     except:
+    #         print "실행 할 수 없는 입력입니다."
+    Test_method("(define a 1)")
+    Test_method("a")
+    Test_method("(define b `(1 2 3))")
+    Test_method("b")
+    Test_method("(define c (- 5 2))")
+    Test_method("c")
+    Test_method("(define d `(+ 2 3))")
+    Test_method("d")
+    Test_method("(define test b)")
+    Test_method("test")
+    Test_method("(+ a 3)")
+    Test_method("(define a 2)")
+    Test_method("(* a 4)")
+    Test_method("((lambda (x) (* x -2)) 3)")
+    Test_method("((lambda (x) (/ x 2)) a)")
+    Test_method("((lambda (x y) (* x y)) 3 5)")
+    Test_method("((lambda (x y) (* x y)) a 5)")
+    Test_method("(define plus1 (lambda (x) (+ x 1)))")
+    Test_method("(plus1 3)")
+    Test_method("(define mul1 (lambda (x) (* x a)))")
+    Test_method("(mul1 a)")
+    Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
+    Test_method("(plus2 4)")
+    Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
+    Test_method("(plus3 a)")
+    Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
+    Test_method("(mul2 7)")
+    Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
+    Test_method("(define square (lambda (x) (* x x)))")
+    Test_method("(define mul_two (lambda (x) (* 2 x)))")
+    Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    Test_method("(new_fun square mul_two 10)")
+    Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    Test_method("(sqrt 4)")
 Test_All()
