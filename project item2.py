@@ -694,10 +694,13 @@ def Test_method(input):
 
 
 def Test_All():
-
-    while True:
-        i = raw_input('> ')
-        print("... ")
-        Test_method(i)
+    test_input = 0
+    while test_input != 'quit':
+        try:
+            test_input = raw_input('> ')
+            print "...",
+            Test_method(test_input)
+        except:
+            print "실행 할 수 없는 입력입니다."
 
 Test_All()
