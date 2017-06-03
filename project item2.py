@@ -572,9 +572,12 @@ def run_func(op_code_node):
         return wrapper_new_list
 
     def define(node):
-        l_node = run_expr(node.value.next)
+        l_node = node.value.next
         result = strip_quote(l_node).value
-        temp = insertTable(result, run_expr(l_node.next).value)
+        if result in inserTable:
+            temp = inserTable[result] = run_expr(l_node.next).value
+        else:
+            temp = insertTable(result, run_expr(l_node.next).value)
         print result, temp
 
     table = {}
@@ -606,6 +609,15 @@ def insertTable(id, value):
     inserTable[id] = value
     return inserTable[id]
 
+def lookupTable(id):
+    firstTemp = id.value
+    if firstTemp in inserTable:
+        temp = inserTable[firstTemp]
+        if type(temp) is int or type(temp) is str:
+            return Node(TokenType.INT, temp)
+        return Node(TokenType.LIST, temp)
+    return id
+
 def run_expr(root_node):
     """
     :type root_node : Node
@@ -614,7 +626,9 @@ def run_expr(root_node):
         return None
 
     if root_node.type is TokenType.ID:
-        return root_node
+        x = root_node
+        y = lookupTable(root_node)
+        return lookupTable(root_node)
     elif root_node.type is TokenType.INT:
         return root_node
     elif root_node.type is TokenType.TRUE:
