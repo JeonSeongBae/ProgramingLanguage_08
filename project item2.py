@@ -574,8 +574,8 @@ def run_func(op_code_node):
     def define(node):
         l_node = run_expr(node.value.next)
         result = strip_quote(l_node).value
-        temp = insertTable(result, l_node)
-        print(temp)
+        temp = insertTable(result, run_expr(l_node.next).value)
+        print result, temp
 
     table = {}
     table['define'] = define
