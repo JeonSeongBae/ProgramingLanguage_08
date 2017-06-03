@@ -599,9 +599,14 @@ def run_func(op_code_node):
 
     return table[op_code_node.value]
 
+def lookupTable(id):
+    if id.value in inserTable:
+        b = inserTable[id.value]
+        return Node(b.type, b)
+
+    print("까꿍")
 
 inserTable = {}
-
 def insertTable(id, value):
     inserTable[id] = value
     return inserTable[id]
@@ -612,8 +617,11 @@ def run_expr(root_node):
     """
     if root_node is None:
         return None
-
     if root_node.type is TokenType.ID:
+        if root_node.value in inserTable:
+            # return Node(root_node.type,root_node.value)
+            return lookupTable(root_node)
+        # lookupTable(root_node)
         return root_node
     elif root_node.type is TokenType.INT:
         return root_node
