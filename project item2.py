@@ -237,6 +237,7 @@ class TokenType():
     NULL_Q = 29
     EQ_Q = 30
 
+
 NODETYPE_NAMES = dict((eval(attr, globals(), TokenType.__dict__), attr) for attr in dir(
     TokenType()) if not callable(attr) and not attr.startswith('__'))
 
@@ -570,7 +571,14 @@ def run_func(op_code_node):
         quote_list.next = new_value_list
         return wrapper_new_list
 
+    def define(node):
+        l_node = run_expr(node.value.next)
+        result = strip_quote(l_node).value
+        temp = insertTable(result, l_node)
+        print(temp)
+
     table = {}
+    table['define'] = define
     table['cons'] = cons
     table["'"] = quote
     table['quote'] = quote
@@ -591,6 +599,12 @@ def run_func(op_code_node):
 
     return table[op_code_node.value]
 
+
+inserTable = {}
+
+def insertTable(id, value):
+    inserTable[id] = value
+    return inserTable[id]
 
 def run_expr(root_node):
     """
@@ -681,7 +695,9 @@ def print_node(node):
     if node.type is TokenType.NOT:
         return 'not'
     if node.type is TokenType.QUOTE:
-        return "'"+print_node(node.next)
+        return "'" + print_node(node.next)
+    if node.type is TokenType.DEFINE:
+        return 'define'
 
 
 def Test_method(input):
@@ -692,9 +708,8 @@ def Test_method(input):
     cute_inter = run_expr(node)
     print print_node(cute_inter)
 
- 
-def Test_All():
 
+def Test_All():
     while True:
         i = raw_input('> ')
         print("... ")
