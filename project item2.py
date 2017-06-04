@@ -578,23 +578,27 @@ def run_func(op_code_node):
         print result, temp
 
     def run_lambda(node):
-        l_node = node.value
-        realValue = l_node.next
-        r_node = strip_quote(node.value)
-        p_node = r_node.next
-        firstValue = Node(realValue.type, realValue.value)  # 3
-        if realValue.next is not None:
-            secondValue = realValue.next  # 5
-            if secondValue.type is TokenType.ID:
-                secondValue = lookupTable(secondValue)
-        if firstValue.type is TokenType.ID:
-            firstValue = lookupTable(firstValue)
-        if p_node.value.next.next.type is not TokenType.INT:
-            firstValue.next = p_node.value.next.next = secondValue  # y
-        p_node.value.next.value = firstValue.value  # x
-        p_node.value.next.type = firstValue.type
+        a=strip_quote(node)
+        b=strip_quote(node.value)
+        c=b.value.value  # 첫번째 변수 값
+        h = a.value  # 첫번째 저장될 값
+        d=b.value.type  # 첫번째 변수 타입
+        i = a.type  # 첫번째 저장될 타입
+        insertTable(b.value.value, a.value)
 
-        return run_expr(p_node)
+        if b.value.next is not None:
+            e=b.value.next  # 두번째 변수 노드
+            a.next  # Node #두번째 저장될 노드
+            f=b.value.next.value  # 두번째 변수 값
+            j = a.next.value  # 두번째 저장될 값
+            g=b.value.next.type  # 두번째 변수 타입
+            k = a.next.type  # 두번째 저장될 타입
+            insertTable(b.value.next.value, a.next.value)
+
+        result = run_expr(b.next)
+
+        return result
+
 
 
 
@@ -633,9 +637,12 @@ def lookupTable(id):
     firstTemp = id.value
     if firstTemp in idTable:
         temp = idTable[firstTemp]
-        if type(temp) is int or type(temp) is str:
-            return Node(TokenType.INT, temp)
-        return Node(TokenType.LIST, temp)
+        if type(temp) is int:
+            return lookupTable(Node(TokenType.INT, temp))
+        if type(temp) is str:
+            return lookupTable(Node(TokenType.ID, temp))
+        return lookupTable(Node(TokenType.LIST, temp))
+
     return id
 
 def run_expr(root_node):
@@ -771,7 +778,7 @@ def Test_All():
     # Test_method("(define plus1 (lambda (x) (+ x 1)))")
     # Test_method("(plus1 3)")
     # Test_method("(define mul1 (lambda (x) (* x a)))")
-    # Test_method("(mul1 a)")
+    # Test_method("(mul1 a)")d
     # Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
     # Test_method("(plus2 4)")
     # Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
