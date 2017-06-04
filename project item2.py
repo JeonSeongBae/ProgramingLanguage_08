@@ -581,7 +581,18 @@ def run_func(op_code_node):
         print result, temp
 
     def run_lambda(node):
-        l_node = run_expr(node.value)
+        l_node = node.value
+        realValue = l_node.next
+        if realValue.type is TokenType.ID:
+            realValue = lookupTable(realValue)
+        r_node = strip_quote(node.value)
+        p_node = r_node.next
+        p_node.value.next.type = realValue.type
+        p_node.value.next.value =realValue.value
+
+        result = run_expr(p_node)
+
+        return result
 
 
     table = {}
@@ -750,7 +761,7 @@ def Test_All():
     Test_method("(define a 2)")
     Test_method("(* a 4)")
     Test_method("((lambda (x) (* x -2)) 3)")
-    # Test_method("((lambda (x) (/ x 2)) a)")
+    Test_method("((lambda (x) (/ x 2)) a)")
     # Test_method("((lambda (x y) (* x y)) 3 5)")
     # Test_method("((lambda (x y) (* x y)) a 5)")
     # Test_method("(define plus1 (lambda (x) (+ x 1)))")
