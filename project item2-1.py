@@ -580,8 +580,6 @@ def run_func(op_code_node):
     def run_lambda(node):
         a=strip_quote(node)
         b=strip_quote(node.value)
-        # if b.type is TokenType.LAMBDA:
-        #     b=b.next
         c=b.value.value  # 첫번째 변수 값
         h = a.value  # 첫번째 저장될 값
         d=b.value.type  # 첫번째 변수 타입
@@ -596,7 +594,9 @@ def run_func(op_code_node):
             g=b.value.next.type  # 두번째 변수 타입
             k = a.next.type  # 두번째 저장될 타입
             insertTable(b.value.next.value, a.next.value)
+
         result = run_expr(b.next)
+
         return result
 
 
@@ -623,14 +623,9 @@ def run_func(op_code_node):
     table['='] = eq
     table['cond'] = cond
     table['lambda'] = run_lambda
+
     if op_code_node.type is TokenType.LIST:
         return table[op_code_node.value.value]
-    if op_code_node.value in idTable:
-        a = lookupTable(op_code_node)
-        b = Node(TokenType.LAMBDA,lookupTable(op_code_node))
-        c = Node(TokenType.LIST,idTable[a])
-        return run_expr(c)
-        # op_code_node=idTable[a]
     return table[op_code_node.value]
 
 idTable = {}
@@ -644,18 +639,12 @@ def lookupTable(id):
         temp = idTable[firstTemp]
         if type(temp) is int:
             return lookupTable(Node(TokenType.INT, temp))
-        elif type(temp) is str:
+        if type(temp) is str:
             return lookupTable(Node(TokenType.ID, temp))
-        elif  temp.type is TokenType.ID:
+        if temp.type is TokenType.LAMBDA:
             return temp
-        elif temp.type is TokenType.LAMBDA:
-            temp = Node(TokenType.LIST, temp)
-            temp.next = id.next
-            a = firstTemp + "_"+id.next.value
-            insertTable(a, temp)
-            return a
-        temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
-        return temp1
+        return Node(TokenType.LIST, temp)
+
     return id
 
 def run_expr(root_node):
@@ -677,8 +666,11 @@ def run_expr(root_node):
     elif root_node.type is TokenType.LIST:
         if root_node.value.value in idTable:
             temp = root_node.value.next
-            a = Node(TokenType.LIST, idTable[lookupTable(root_node.value)])
-            root_node = a
+            root_node.value = lookupTable(root_node.value)
+            root_node.set_last_next(temp)
+            makeList = Node(TokenType.LIST, root_node)
+
+            return run_list(makeList)
         return run_list(root_node)
     else:
         print 'Run Expr Error'
