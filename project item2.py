@@ -628,20 +628,21 @@ def run_func(op_code_node):
         return table[op_code_node.value.value]
     return table[op_code_node.value]
 
-inserTable = {}
+idTable = {}
 def insertTable(id, value):
-    inserTable[id] = value
-    return inserTable[id]
+    idTable[id] = value
+    return idTable[id]
 
 def lookupTable(id):
     firstTemp = id.value
-    if firstTemp in inserTable:
-        temp = inserTable[firstTemp]
+    if firstTemp in idTable:
+        temp = idTable[firstTemp]
         if type(temp) is int:
             return lookupTable(Node(TokenType.INT, temp))
         if type(temp) is str:
             return lookupTable(Node(TokenType.ID, temp))
         return lookupTable(Node(TokenType.LIST, temp))
+
     return id
 
 def run_expr(root_node):
