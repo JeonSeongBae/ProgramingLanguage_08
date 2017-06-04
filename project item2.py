@@ -574,8 +574,8 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next
         result = strip_quote(l_node).value
-        if result in inserTable:
-            temp = inserTable[result] = run_expr(l_node.next).value
+        if result in idTable:
+            temp = idTable[result] = run_expr(l_node.next).value
         else:
             temp = insertTable(result, run_expr(l_node.next).value)
         print result, temp
@@ -609,15 +609,15 @@ def run_func(op_code_node):
         return table[op_code_node.value.value]
     return table[op_code_node.value]
 
-inserTable = {}
+idTable = {}
 def insertTable(id, value):
-    inserTable[id] = value
-    return inserTable[id]
+    idTable[id] = value
+    return idTable[id]
 
 def lookupTable(id):
     firstTemp = id.value
-    if firstTemp in inserTable:
-        temp = inserTable[firstTemp]
+    if firstTemp in idTable:
+        temp = idTable[firstTemp]
         if type(temp) is int or type(temp) is str:
             return Node(TokenType.INT, temp)
         return Node(TokenType.LIST, temp)
