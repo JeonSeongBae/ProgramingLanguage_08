@@ -574,25 +574,29 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next
         result = strip_quote(l_node).value
-        if result in inserTable:
-            temp = inserTable[result] = run_expr(l_node.next).value
-        else:
-            temp = insertTable(result, run_expr(l_node.next).value)
+        temp = insertTable(result, run_expr(l_node.next).value)
         print result, temp
 
     def run_lambda(node):
         l_node = node.value
         realValue = l_node.next
-        if realValue.type is TokenType.ID:
-            realValue = lookupTable(realValue)
         r_node = strip_quote(node.value)
         p_node = r_node.next
-        p_node.value.next.type = realValue.type
-        p_node.value.next.value =realValue.value
+        firstValue = Node(realValue.type, realValue.value)  # 3
+        if realValue.next is not None:
+            secondValue = realValue.next  # 5
+            if secondValue.type is TokenType.ID:
+                secondValue = lookupTable(secondValue)
+        if firstValue.type is TokenType.ID:
+            firstValue = lookupTable(firstValue)
+        if p_node.value.next.next.type is not TokenType.INT:
+            firstValue.next = p_node.value.next.next = secondValue  # y
+        p_node.value.next.value = firstValue.value  # x
+        p_node.value.next.type = firstValue.type
 
-        result = run_expr(p_node)
+        return run_expr(p_node)
 
-        return result
+
 
 
     table = {}
@@ -762,8 +766,8 @@ def Test_All():
     Test_method("(* a 4)")
     Test_method("((lambda (x) (* x -2)) 3)")
     Test_method("((lambda (x) (/ x 2)) a)")
-    # Test_method("((lambda (x y) (* x y)) 3 5)")
-    # Test_method("((lambda (x y) (* x y)) a 5)")
+    Test_method("((lambda (x y) (* x y)) 3 5)")
+    Test_method("((lambda (x y) (* x y)) a 5)")
     # Test_method("(define plus1 (lambda (x) (+ x 1)))")
     # Test_method("(plus1 3)")
     # Test_method("(define mul1 (lambda (x) (* x a)))")
