@@ -574,12 +574,14 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next
         result = strip_quote(l_node).value
-        temp = insertTable(result, run_expr(l_node.next).value)
+        temp = insertTable(result, l_node.next.value)
         print result, temp
 
     def run_lambda(node):
         a=strip_quote(node)
         b=strip_quote(node.value)
+        if b.type is TokenType.LAMBDA:
+            b=b.next
         c=b.value.value  # 첫번째 변수 값
         h = a.value  # 첫번째 저장될 값
         d=b.value.type  # 첫번째 변수 타입
@@ -594,14 +596,8 @@ def run_func(op_code_node):
             g=b.value.next.type  # 두번째 변수 타입
             k = a.next.type  # 두번째 저장될 타입
             insertTable(b.value.next.value, a.next.value)
-
         result = run_expr(b.next)
-
         return result
-
-
-
-
 
     table = {}
     table['define'] = define
@@ -623,9 +619,9 @@ def run_func(op_code_node):
     table['='] = eq
     table['cond'] = cond
     table['lambda'] = run_lambda
-
     if op_code_node.type is TokenType.LIST:
         return table[op_code_node.value.value]
+    op_code_node = lookupTable(op_code_node)
     return table[op_code_node.value]
 
 idTable = {}
@@ -641,8 +637,7 @@ def lookupTable(id):
             return lookupTable(Node(TokenType.INT, temp))
         if type(temp) is str:
             return lookupTable(Node(TokenType.ID, temp))
-        return lookupTable(Node(TokenType.LIST, temp))
-
+        return run_expr(lookupTable(Node(TokenType.LIST, temp)))
     return id
 
 def run_expr(root_node):
@@ -775,8 +770,8 @@ def Test_All():
     Test_method("((lambda (x) (/ x 2)) a)")
     Test_method("((lambda (x y) (* x y)) 3 5)")
     Test_method("((lambda (x y) (* x y)) a 5)")
-    # Test_method("(define plus1 (lambda (x) (+ x 1)))")
-    # Test_method("(plus1 3)")
+    Test_method("(define plus1 (lambda (x) (+ x 1)))")
+    Test_method("(plus1 3)")
     # Test_method("(define mul1 (lambda (x) (* x a)))")
     # Test_method("(mul1 a)")d
     # Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
