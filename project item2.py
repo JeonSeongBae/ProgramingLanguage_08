@@ -580,8 +580,8 @@ def run_func(op_code_node):
     def run_lambda(node):
         a=strip_quote(node)
         b=strip_quote(node.value)
-        if b.type is TokenType.LAMBDA:
-            b=b.next
+        # if b.type is TokenType.LAMBDA:
+        #     b=b.next
         c=b.value.value  # 첫번째 변수 값
         h = a.value  # 첫번째 저장될 값
         d=b.value.type  # 첫번째 변수 타입
@@ -598,6 +598,10 @@ def run_func(op_code_node):
             insertTable(b.value.next.value, a.next.value)
         result = run_expr(b.next)
         return result
+
+
+
+
 
     table = {}
     table['define'] = define
@@ -621,7 +625,12 @@ def run_func(op_code_node):
     table['lambda'] = run_lambda
     if op_code_node.type is TokenType.LIST:
         return table[op_code_node.value.value]
-    op_code_node = lookupTable(op_code_node)
+    if op_code_node.value in idTable:
+        a = lookupTable(op_code_node)
+        b = Node(TokenType.LAMBDA,lookupTable(op_code_node))
+        c = Node(TokenType.LIST,idTable[a])
+        return run_expr(c)
+        # op_code_node=idTable[a]
     return table[op_code_node.value]
 
 idTable = {}
@@ -635,9 +644,18 @@ def lookupTable(id):
         temp = idTable[firstTemp]
         if type(temp) is int:
             return lookupTable(Node(TokenType.INT, temp))
-        if type(temp) is str:
+        elif type(temp) is str:
             return lookupTable(Node(TokenType.ID, temp))
-        return run_expr(lookupTable(Node(TokenType.LIST, temp)))
+        elif  temp.type is TokenType.ID:
+            return temp
+        elif temp.type is TokenType.LAMBDA:
+            temp = Node(TokenType.LIST, temp)
+            temp.next = id.next
+            a = firstTemp + "_"+id.next.value
+            insertTable(a, temp)
+            return a
+        temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
+        return temp1
     return id
 
 def run_expr(root_node):
@@ -657,6 +675,10 @@ def run_expr(root_node):
     elif root_node.type is TokenType.FALSE:
         return root_node
     elif root_node.type is TokenType.LIST:
+        if root_node.value.value in idTable:
+            temp = root_node.value.next
+            a = Node(TokenType.LIST, idTable[lookupTable(root_node.value)])
+            root_node = a
         return run_list(root_node)
     else:
         print 'Run Expr Error'
@@ -770,21 +792,27 @@ def Test_All():
     Test_method("((lambda (x) (/ x 2)) a)")
     Test_method("((lambda (x y) (* x y)) 3 5)")
     Test_method("((lambda (x y) (* x y)) a 5)")
+
     Test_method("(define plus1 (lambda (x) (+ x 1)))")
     Test_method("(plus1 3)")
-    # Test_method("(define mul1 (lambda (x) (* x a)))")
-    # Test_method("(mul1 a)")d
-    # Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
-    # Test_method("(plus2 4)")
-    # Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
-    # Test_method("(plus3 a)")
-    # Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
-    # Test_method("(mul2 7)")
-    # Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
-    # Test_method("(define square (lambda (x) (* x x)))")
-    # Test_method("(define mul_two (lambda (x) (* 2 x)))")
-    # Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    # Test_method("(new_fun square mul_two 10)")
-    # Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    # Test_method("(sqrt 4)")
+
+    Test_method("(define mul1 (lambda (x) (* x a)))")
+    Test_method("(mul1 a)")
+
+    Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
+    Test_method("(plus2 4)")
+
+    Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
+    Test_method("(plus3 a)")
+
+    Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
+    Test_method("(mul2 7)")
+
+    Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
+    Test_method("(define square (lambda (x) (* x x)))")
+    Test_method("(define mul_two (lambda (x) (* 2 x)))")
+    Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    Test_method("(new_fun square mul_two 10)")
+    Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    Test_method("(sqrt 4)")
 Test_All()
