@@ -455,7 +455,9 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        return Node(l_node.type, int(lookupTable(l_node).value) + int(lookupTable(l_node.next).value))
+        a = int(lookupTable(l_node).value)
+        b= int(lookupTable(l_node.next).value)
+        return Node(l_node.type, a+b)
 
     def minus(node):
         l_node = node.value.next
@@ -599,10 +601,6 @@ def run_func(op_code_node):
         result = run_expr(b.next)
         return result
 
-
-
-
-
     table = {}
     table['define'] = define
     table['cons'] = cons
@@ -650,10 +648,11 @@ def lookupTable(id):
             return temp
         elif temp.type is TokenType.LAMBDA:
             temp = Node(TokenType.LIST, temp)
-            temp.next = id.next
-            a = firstTemp + "_"+id.next.value
-            insertTable(a, temp)
-            return a
+            if id.next.type is TokenType.ID:
+                temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
+            else:
+                temp.next = id.next
+            return temp
         temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
         return temp1
     return id
@@ -665,8 +664,6 @@ def run_expr(root_node):
     if root_node is None:
         return None
     if root_node.type is TokenType.ID:
-        x = root_node
-        y = lookupTable(root_node)
         return lookupTable(root_node)
     elif root_node.type is TokenType.INT:
         return root_node
@@ -677,7 +674,9 @@ def run_expr(root_node):
     elif root_node.type is TokenType.LIST:
         if root_node.value.value in idTable:
             temp = root_node.value.next
-            a = Node(TokenType.LIST, idTable[lookupTable(root_node.value)])
+            if temp.type is TokenType.ID:
+                b = lookupTable(temp).value
+            a = Node(TokenType.LIST, lookupTable(root_node.value))
             root_node = a
         return run_list(root_node)
     else:
@@ -798,18 +797,18 @@ def Test_All():
     Test_method("(mul1 a)")
     Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
     Test_method("(plus2 4)")
-    # Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
-    # Test_method("(plus3 a)")
-    # Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
-    # Test_method("(mul2 7)")
-    # Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
-    # Test_method("(#T (lastitem (cdr ls))))))")
-    # Test_method("(define square (lambda (x) (* x x)))")
-    # Test_method("(define yourfunc (lambda (x func) (func x))")
-    # Test_method("(yourfunc 3 square)")
-    # Test_method("(define mul_two (lambda (x) (* 2 x)))")
-    # Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    # Test_method("(new_fun square mul_two 10)")
-    # Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    # Test_method("(sqrt 4)")
+    Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
+    Test_method("(plus3 a)")
+    Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
+    Test_method("(mul2 7)")
+    Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
+    Test_method("(#T (lastitem (cdr ls))))))")
+    Test_method("(define square (lambda (x) (* x x)))")
+    Test_method("(define yourfunc (lambda (x func) (func x))")
+    Test_method("(yourfunc 3 square)")
+    Test_method("(define mul_two (lambda (x) (* 2 x)))")
+    Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    Test_method("(new_fun square mul_two 10)")
+    Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    Test_method("(sqrt 4)")
 Test_All()
