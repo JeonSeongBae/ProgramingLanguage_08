@@ -392,6 +392,7 @@ def run_func(op_code_node):
 
     def car(node):
         l_node = run_expr(node.value.next)
+
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
             return result
@@ -402,7 +403,7 @@ def run_func(op_code_node):
         :type node: Node
         """
         l_node = node.value.next
-        l_node = run_expr(l_node)
+        l_node = run_expr(lookupTable(l_node))
         new_r_node = strip_quote(l_node)
         return create_new_quote_list(new_r_node.value.next, True)
 
@@ -551,7 +552,7 @@ def run_func(op_code_node):
         #Fill Out
         l_node = run_expr(node.value)
         if l_node.type is TokenType.TRUE:
-            return node.value.next
+            return run_expr(node.value.next)
         return run_cond(node.next)
 
     def create_new_quote_list(value_node, list_flag=False):
@@ -580,7 +581,7 @@ def run_func(op_code_node):
         print result, temp
 
     def run_lambda(node):
-        a=strip_quote(node)
+        a=run_expr(strip_quote(node))
         b=strip_quote(node.value)
         # if b.type is TokenType.LAMBDA:
         #     b=b.next
@@ -599,6 +600,7 @@ def run_func(op_code_node):
             k = a.next.type  # 두번째 저장될 타입
             insertTable(b.value.next.value, a.next.value)
         result = run_expr(b.next)
+
         return result
 
     table = {}
@@ -802,7 +804,7 @@ def Test_All():
     # Test_method("(define mul2 (lambda (x) (* (plus1 x) -2))) (mul2 7)")
     # Test_method("(mul2 7)")
     Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
-    Test_method("(lastitem '(1 2 3))")
+    Test_method("(lastitem '(1 2 3 4))")
     # Test_method("(define square (lambda (x) (* x x)))")
     # Test_method("(define yourfunc (lambda (x func) (func x)))")
     # Test_method("(yourfunc 3 square)")
