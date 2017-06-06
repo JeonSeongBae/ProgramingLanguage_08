@@ -573,11 +573,11 @@ def run_func(op_code_node):
         new_value_list = Node(TokenType.LIST, value_node)
         quote_list.next = new_value_list
         return wrapper_new_list
-
+    # 함수 define 정의
     def define(node):
-        l_node = node.value.next
-        result = strip_quote(l_node).value
-        temp = insertTable(result, l_node.next.value)
+        l_node = node.value.next # type define 이후의 순수한 노드의 값 불러오기
+        result = strip_quote(l_node).value # id 추출하기
+        temp = insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
         print result, temp
 
     def run_lambda(node):
@@ -587,12 +587,6 @@ def run_func(op_code_node):
             e=b.value.next  # 두번째 변수 노드
             a.next  # Node #두번째 저장될 노드
             f= b.value.next.value  # 두번째 변수 값
-            # if a.next.type is TokenType.ID:
-            #     j= lookupTable(a.next)
-            #     g= j.type
-            # else:
-            #     j = a.next.value  # 두번째 저장될 값
-            #     g=b.value.next.type  # 두번째 변수 타입
             j = a.next.value  # 두번째 저장될 값
             g = b.value.next.type  # 두번째 변수 타입
             k = a.next.type  # 두번째 저장될 타입
@@ -662,19 +656,19 @@ idTable = {}
 def insertTable(id, value):
     idTable[id] = value
     return idTable[id]
-
+#함수 lookupTable 정의
 def lookupTable(id):
     firstTemp = id.value
     if firstTemp in idTable:
         temp = idTable[firstTemp]
-        if type(temp) is int:
+        if type(temp) is int: #함수 id의 value 값의 type이 int일 경우
             return lookupTable(Node(TokenType.INT, temp))
-        elif type(temp) is str:
+        elif type(temp) is str: #함수 id의 value 값의 type이 str일 경우
             return lookupTable(Node(TokenType.ID, temp))
-        elif  temp.type is TokenType.ID:
+        elif  temp.type is TokenType.ID: #함수 id의 value 값의 type이 ID일 경우
             return temp
-        elif temp.type is TokenType.LAMBDA:
-            temp = Node(TokenType.LIST, temp)
+        elif temp.type is TokenType.LAMBDA: #함수 id의 value 값의 type이 LAMBDA일 경우
+            temp = Node(TokenType.LIST, temp) #함수 temp에 Node를 생성 
             if id.next is not None:
                 if id.next.type is TokenType.ID:
                     temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
