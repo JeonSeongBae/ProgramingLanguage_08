@@ -581,24 +581,49 @@ def run_func(op_code_node):
         print result, temp
 
     def run_lambda(node):
-        a=run_expr(strip_quote(node))
+        a=strip_quote(node)
         b=strip_quote(node.value)
-        # if b.type is TokenType.LAMBDA:
-        #     b=b.next
+        if b.value.next is not None:
+            e=b.value.next  # 두번째 변수 노드
+            a.next  # Node #두번째 저장될 노드
+            f= b.value.next.value  # 두번째 변수 값
+            # if a.next.type is TokenType.ID:
+            #     j= lookupTable(a.next)
+            #     g= j.type
+            # else:
+            #     j = a.next.value  # 두번째 저장될 값
+            #     g=b.value.next.type  # 두번째 변수 타입
+            j = a.next.value  # 두번째 저장될 값
+            g = b.value.next.type  # 두번째 변수 타입
+            k = a.next.type  # 두번째 저장될 타입
+            insertTable(f, j)
+        a = run_expr(a)
         c=b.value.value  # 첫번째 변수 값
         h = a.value  # 첫번째 저장될 값
         d=b.value.type  # 첫번째 변수 타입
         i = a.type  # 첫번째 저장될 타입
         insertTable(b.value.value, a.value)
 
-        if b.value.next is not None:
-            e=b.value.next  # 두번째 변수 노드
-            a.next  # Node #두번째 저장될 노드
-            f=b.value.next.value  # 두번째 변수 값
-            j = a.next.value  # 두번째 저장될 값
-            g=b.value.next.type  # 두번째 변수 타입
-            k = a.next.type  # 두번째 저장될 타입
-            insertTable(b.value.next.value, a.next.value)
+        # if b.next.type is TokenType.LIST:
+        #     if b.next.value.value in idTable:
+        if lookupTable(b.next.value).type is TokenType.LIST:
+            first = lookupTable(b.next.value)
+            if lookupTable(b.next.value.next).type is TokenType.LIST:
+                second = lookupTable(b.next.value.next)
+                first.set_last_next(second)
+                makeList = Node(TokenType.LIST, first)
+                makeList = run_expr(makeList)
+                return makeList
+            else:
+                second = b.next.value.next
+                second = lookupTable(second)
+                first.set_last_next(second)
+                makeList = Node(TokenType.LIST, first)
+                makeList = run_expr(makeList)
+                return makeList
+        # elif lookupTable(b.next.value.next).type is TokenType.LIST:
+        #     lookupTable(b.next.value)
+
         result = run_expr(b.next)
 
         return result
@@ -650,10 +675,11 @@ def lookupTable(id):
             return temp
         elif temp.type is TokenType.LAMBDA:
             temp = Node(TokenType.LIST, temp)
-            if id.next.type is TokenType.ID:
-                temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
-            else:
-                temp.next = id.next
+            if id.next is not None:
+                if id.next.type is TokenType.ID:
+                    temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
+                else:
+                    temp.next = id.next
             return temp
         temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
         return temp1
@@ -677,7 +703,7 @@ def run_expr(root_node):
         if root_node.value.value in idTable:
             temp = root_node.value.next
             if temp.type is TokenType.ID:
-                b = lookupTable(temp).value
+               x = lookupTable(temp)
             a = Node(TokenType.LIST, lookupTable(root_node.value))
             root_node = a
         return run_list(root_node)
@@ -776,38 +802,38 @@ def Test_All():
     #         Test_method(test_input)
     #     except:
     #         print "실행 할 수 없는 입력입니다."
-    # Test_method("(define a 1)")
-    # Test_method("a")
-    # Test_method("(define b '(1 2 3))")
-    # Test_method("b")
-    # Test_method("(define c (- 5 2))")
-    # Test_method("c")
-    # Test_method("(define d '(+ 2 3))")
-    # Test_method("d")
-    # Test_method("(define test b)")
-    # Test_method("test")
-    # Test_method("(+ a 3)")
-    # Test_method("(define a 2)")
-    # Test_method("(* a 4)")
-    # Test_method("((lambda (x) (* x -2)) 3)")
-    # Test_method("((lambda (x) (/ x 2)) a)")
-    # Test_method("((lambda (x y) (* x y)) 3 5)")
-    # Test_method("((lambda (x y) (* x y)) a 5)")
-    # Test_method("(define plus1 (lambda (x) (+ x 1)))")
-    # Test_method("(plus1 3)")
-    # Test_method("(define mul1 (lambda (x) (* x a)))")
-    # Test_method("(mul1 a)")
-    # Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
-    # Test_method("(plus2 4)")
-    # Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
-    # Test_method("(plus3 a)")
-    # Test_method("(define mul2 (lambda (x) (* (plus1 x) -2))) (mul2 7)")
-    # Test_method("(mul2 7)")
+    Test_method("(define a 1)")
+    Test_method("a")
+    Test_method("(define b '(1 2 3))")
+    Test_method("b")
+    Test_method("(define c (- 5 2))")
+    Test_method("c")
+    Test_method("(define d '(+ 2 3))")
+    Test_method("d")
+    Test_method("(define test b)")
+    Test_method("test")
+    Test_method("(+ a 3)")
+    Test_method("(define a 2)")
+    Test_method("(* a 4)")
+    Test_method("((lambda (x) (* x -2)) 3)")
+    Test_method("((lambda (x) (/ x 2)) a)")
+    Test_method("((lambda (x y) (* x y)) 3 5)")
+    Test_method("((lambda (x y) (* x y)) a 5)")
+    Test_method("(define plus1 (lambda (x) (+ x 1)))")
+    Test_method("(plus1 3)")
+    Test_method("(define mul1 (lambda (x) (* x a)))")
+    Test_method("(mul1 a)")
+    Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
+    Test_method("(plus2 4)")
+    Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
+    Test_method("(plus3 a)")
+    Test_method("(define mul2 (lambda (x) (* (plus1 x) -2))) (mul2 7)")
+    Test_method("(mul2 7)")
     Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
     Test_method("(lastitem '(1 2 3 4))")
-    # Test_method("(define square (lambda (x) (* x x)))")
-    # Test_method("(define yourfunc (lambda (x func) (func x)))")
-    # Test_method("(yourfunc 3 square)")
+    Test_method("(define square (lambda (x) (* x x)))")
+    Test_method("(define yourfunc (lambda (x func) (func x)))")
+    Test_method("(yourfunc 3 square)")
     # Test_method("(define mul_two (lambda (x) (* 2 x)))")
     # Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
     # Test_method("(new_fun square mul_two 10)")
