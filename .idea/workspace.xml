@@ -24,8 +24,8 @@
       <file leaf-file-name="project item2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/project item2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="443">
-              <caret line="815" column="10" lean-forward="false" selection-start-line="815" selection-start-column="10" selection-end-line="815" selection-end-column="10" />
+            <state relative-caret-position="208">
+              <caret line="828" column="28" lean-forward="true" selection-start-line="828" selection-start-column="28" selection-end-line="828" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -34,8 +34,8 @@
       <file leaf-file-name="project item2-1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/project item2-1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18216">
-              <caret line="792" column="0" lean-forward="false" selection-start-line="792" selection-start-column="0" selection-end-line="795" selection-end-column="29" />
+            <state relative-caret-position="23">
+              <caret line="668" column="24" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="806" selection-end-column="10" />
               <folding />
             </state>
           </provider>
@@ -646,18 +646,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project item2.py">
+    <entry file="file://$PROJECT_DIR$/project item2-1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="443">
-          <caret line="815" column="10" lean-forward="false" selection-start-line="815" selection-start-column="10" selection-end-line="815" selection-end-column="10" />
+        <state relative-caret-position="23">
+          <caret line="668" column="24" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="806" selection-end-column="10" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project item2-1.py">
+    <entry file="file://$PROJECT_DIR$/project item2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18216">
-          <caret line="792" column="0" lean-forward="false" selection-start-line="792" selection-start-column="0" selection-end-line="795" selection-end-column="29" />
+        <state relative-caret-position="208">
+          <caret line="828" column="28" lean-forward="true" selection-start-line="828" selection-start-column="28" selection-end-line="828" selection-end-column="28" />
           <folding />
         </state>
       </provider>
