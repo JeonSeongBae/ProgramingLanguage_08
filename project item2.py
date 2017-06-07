@@ -596,9 +596,15 @@ def run_func(op_code_node):
             f=b.value.next.value  # 두번째 변수 값
             j = a.next.value  # 두번째 저장될 값
             g=b.value.next.type  # 두번째 변수 타입
-            k = a.next.type  # 두번째 저장될 타입
+            k =a.next.type  # 두번째 저장될 타입
             insertTable(b.value.next.value, a.next.value)
         result = run_expr(b.next)
+
+        # lambda에서 사용한 변수 제거
+        idTable[b.value.value] = None
+        if b.value.next is not None:
+            idTable[b.value.next.value] = None
+
         return result
 
     table = {}
@@ -802,13 +808,12 @@ def Test_All():
     Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
     Test_method("(mul2 7)")
     Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
-    Test_method("(#T (lastitem (cdr ls))))))")
     Test_method("(define square (lambda (x) (* x x)))")
-    Test_method("(define yourfunc (lambda (x func) (func x))")
-    Test_method("(yourfunc 3 square)")
-    Test_method("(define mul_two (lambda (x) (* 2 x)))")
-    Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    Test_method("(new_fun square mul_two 10)")
+    Test_method("(define yourfunc (lambda (x func) (func x) ) )")
+    # Test_method("(yourfunc 3 square)")
+    Test_method("(define multwo (lambda (x) (* 2 x)))")
+    Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    Test_method("(newfun square multwo 10)")
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
     Test_method("(sqrt 4)")
 Test_All()
