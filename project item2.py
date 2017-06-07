@@ -392,6 +392,7 @@ def run_func(op_code_node):
 
     def car(node):
         l_node = run_expr(node.value.next)
+
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
             return result
@@ -402,7 +403,7 @@ def run_func(op_code_node):
         :type node: Node
         """
         l_node = node.value.next
-        l_node = run_expr(l_node)
+        l_node = run_expr(lookupTable(l_node))
         new_r_node = strip_quote(l_node)
         return create_new_quote_list(new_r_node.value.next, True)
 
@@ -551,7 +552,7 @@ def run_func(op_code_node):
         #Fill Out
         l_node = run_expr(node.value)
         if l_node.type is TokenType.TRUE:
-            return node.value.next
+            return run_expr(node.value.next)
         return run_cond(node.next)
 
     def create_new_quote_list(value_node, list_flag=False):
@@ -572,39 +573,54 @@ def run_func(op_code_node):
         new_value_list = Node(TokenType.LIST, value_node)
         quote_list.next = new_value_list
         return wrapper_new_list
-
+    # 함수 define 정의
     def define(node):
-        l_node = node.value.next
-        result = strip_quote(l_node).value
-        temp = insertTable(result, l_node.next.value)
+        l_node = node.value.next # type define 이후의 순수한 노드의 값 불러오기
+        result = strip_quote(l_node).value # id 추출하기
+        temp = insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
         print result, temp
 
     def run_lambda(node):
         a=strip_quote(node)
         b=strip_quote(node.value)
-        # if b.type is TokenType.LAMBDA:
-        #     b=b.next
+        if b.value.next is not None:
+            e=b.value.next  # 두번째 변수 노드
+            a.next  # Node #두번째 저장될 노드
+            f= b.value.next.value  # 두번째 변수 값
+            j = a.next.value  # 두번째 저장될 값
+            g = b.value.next.type  # 두번째 변수 타입
+            k = a.next.type  # 두번째 저장될 타입
+            insertTable(f, j)
+        a = run_expr(a)
         c=b.value.value  # 첫번째 변수 값
         h = a.value  # 첫번째 저장될 값
         d=b.value.type  # 첫번째 변수 타입
         i = a.type  # 첫번째 저장될 타입
         insertTable(b.value.value, a.value)
-
-        if b.value.next is not None:
-            e=b.value.next  # 두번째 변수 노드
-            a.next  # Node #두번째 저장될 노드
-            f=b.value.next.value  # 두번째 변수 값
-            j = a.next.value  # 두번째 저장될 값
-            g=b.value.next.type  # 두번째 변수 타입
-            k =a.next.type  # 두번째 저장될 타입
-            insertTable(b.value.next.value, a.next.value)
+        # if b.next.type is TokenType.LIST:
+        #     if b.next.value.value in idTable:
+        if lookupTable(b.next.value).type is TokenType.LIST:
+            first = lookupTable(b.next.value)
+            if lookupTable(b.next.value.next).type is TokenType.LIST:
+                second = lookupTable(b.next.value.next)
+                first.set_last_next(second)
+                makeList = Node(TokenType.LIST, first)
+                makeList = run_expr(makeList)
+                return makeList
+            else:
+                second = b.next.value.next
+                second = lookupTable(second)
+                first.set_last_next(second)
+                makeList = Node(TokenType.LIST, first)
+                makeList = run_expr(makeList)
+                return makeList
+        # elif lookupTable(b.next.value.next).type is TokenType.LIST:
+        #     lookupTable(b.next.value)
         result = run_expr(b.next)
-
         # lambda에서 사용한 변수 제거
         idTable[b.value.value] = None
         if b.value.next is not None:
             idTable[b.value.next.value] = None
-
         return result
 
     table = {}
@@ -641,23 +657,24 @@ idTable = {}
 def insertTable(id, value):
     idTable[id] = value
     return idTable[id]
-
+#함수 lookupTable 정의
 def lookupTable(id):
     firstTemp = id.value
     if firstTemp in idTable:
         temp = idTable[firstTemp]
-        if type(temp) is int:
+        if type(temp) is int: #함수 id의 value 값의 type이 int일 경우
             return lookupTable(Node(TokenType.INT, temp))
-        elif type(temp) is str:
+        elif type(temp) is str: #함수 id의 value 값의 type이 str일 경우
             return lookupTable(Node(TokenType.ID, temp))
-        elif  temp.type is TokenType.ID:
+        elif  temp.type is TokenType.ID: #함수 id의 value 값의 type이 ID일 경우
             return temp
-        elif temp.type is TokenType.LAMBDA:
-            temp = Node(TokenType.LIST, temp)
-            if id.next.type is TokenType.ID:
-                temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
-            else:
-                temp.next = id.next
+        elif temp.type is TokenType.LAMBDA: #함수 id의 value 값의 type이 LAMBDA일 경우
+            temp = Node(TokenType.LIST, temp) #함수 temp에 Node를 생성 
+            if id.next is not None:
+                if id.next.type is TokenType.ID:
+                    temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
+                else:
+                    temp.next = id.next
             return temp
         temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
         return temp1
@@ -681,7 +698,7 @@ def run_expr(root_node):
         if root_node.value.value in idTable:
             temp = root_node.value.next
             if temp.type is TokenType.ID:
-                b = lookupTable(temp).value
+               x = lookupTable(temp)
             a = Node(TokenType.LIST, lookupTable(root_node.value))
             root_node = a
         return run_list(root_node)
@@ -805,15 +822,16 @@ def Test_All():
     Test_method("(plus2 4)")
     Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
     Test_method("(plus3 a)")
-    Test_method("(define mul2 (lambda (x) (* (plus1 x) -2)))")
+    Test_method("(define mul2 (lambda (x) (* (plus1 x) -2))) (mul2 7)")
     Test_method("(mul2 7)")
     Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
+    Test_method("(lastitem '(1 2 3 4))")
     Test_method("(define square (lambda (x) (* x x)))")
-    Test_method("(define yourfunc (lambda (x func) (func x) ) )")
-    # Test_method("(yourfunc 3 square)")
-    Test_method("(define multwo (lambda (x) (* 2 x)))")
-    Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    Test_method("(newfun square multwo 10)")
-    Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    Test_method("(sqrt 4)")
+    Test_method("(define yourfunc (lambda (x func) (func x)))")
+    Test_method("(yourfunc 3 square)")
+    # Test_method("(define mul_two (lambda (x) (* 2 x)))")
+    # Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    # Test_method("(new_fun square mul_two 10)")
+    # Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    # Test_method("(sqrt 4)")
 Test_All()
