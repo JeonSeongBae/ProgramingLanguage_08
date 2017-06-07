@@ -618,9 +618,9 @@ def run_func(op_code_node):
         #     lookupTable(b.next.value)
         result = run_expr(b.next)
         # lambda에서 사용한 변수 제거
-        idTable[b.value.value] = None
-        if b.value.next is not None:
-            idTable[b.value.next.value] = None
+        # idTable[b.value.value] = None
+        # if b.value.next is not None:
+        #     idTable[b.value.next.value] = None
         return result
 
     table = {}
@@ -786,11 +786,11 @@ def Test_method(input):
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
     print print_node(cute_inter)
-    b = node.value.value
-    if cute_inter is not None and b.type is TokenType.LAMBDA:
-        del idTable[b.next.value.value]
-        if b.next.value.next is not None:
-            del idTable[b.next.value.next.value]
+    if node.type is TokenType.LIST and node.value.type is TokenType.LIST and node.value.value.type is TokenType.LAMBDA:
+        temp = node.value.value.next.value
+        del idTable[temp.value]
+        if temp.next is not None:
+            del idTable[temp.next.value]
 
 
 def Test_All():
@@ -802,22 +802,22 @@ def Test_All():
     #         Test_method(test_input)
     #     except:
     #         print "실행 할 수 없는 입력입니다."
-    # Test_method("(define a 1)")
-    # Test_method("a")
-    # Test_method("(define b '(1 2 3))")
-    # Test_method("b")
-    # Test_method("(define c (- 5 2))")
-    # Test_method("c")
-    # Test_method("(define d '(+ 2 3))")
-    # Test_method("d")
-    # Test_method("(define test b)")
-    # Test_method("test")
-    # Test_method("(+ a 3)")
+    Test_method("(define a 1)")
+    Test_method("a")
+    Test_method("(define b '(1 2 3))")
+    Test_method("b")
+    Test_method("(define c (- 5 2))")
+    Test_method("c")
+    Test_method("(define d '(+ 2 3))")
+    Test_method("d")
+    Test_method("(define test b)")
+    Test_method("test")
+    Test_method("(+ a 3)")
     Test_method("(define a 2)")
-    # Test_method("(* a 4)")
-    Test_method("((lambda (x) (* x -2)) 3)")
-    Test_method("((lambda (x) (/ x 2)) a)")
-    Test_method("((lambda (x y) (* x y)) 3 5)")
+    Test_method("(* a 4)")
+    Test_method("((lambda (x) (* x -2)) 3)") # -6
+    Test_method("((lambda (x) (/ x 2)) a)") # 1
+    Test_method("((lambda (x y) (* x y)) 3 5)") # 15
     Test_method("((lambda (x y) (* x y)) a 5)")
     Test_method("(define plus1 (lambda (x) (+ x 1)))")
     Test_method("(plus1 3)")
@@ -834,9 +834,9 @@ def Test_All():
     Test_method("(define square (lambda (x) (* x x)))")
     Test_method("(define yourfunc (lambda (x func) (func x)))")
     Test_method("(yourfunc 3 square)")
-    # Test_method("(define mul_two (lambda (x) (* 2 x)))")
-    # Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    # Test_method("(new_fun square mul_two 10)")
-    # Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    # Test_method("(sqrt 4)")
+    Test_method("(define mul_two (lambda (x) (* 2 x)))")
+    Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    Test_method("(new_fun square mul_two 10)")
+    Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    Test_method("(sqrt 4)")
 Test_All()
