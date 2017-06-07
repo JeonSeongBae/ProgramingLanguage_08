@@ -392,7 +392,6 @@ def run_func(op_code_node):
 
     def car(node):
         l_node = run_expr(node.value.next)
-
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
             return result
@@ -431,7 +430,6 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
-
         if (new_l_node.type or new_r_node.type) is not TokenType.INT:
             return Node(TokenType.FALSE)
         if new_l_node.value == new_r_node.value:
@@ -456,9 +454,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        a = int(lookupTable(l_node).value)
-        b= int(lookupTable(l_node.next).value)
-        return Node(l_node.type, a+b)
+        return Node(l_node.type, int(lookupTable(l_node).value)+int(lookupTable(l_node.next).value))
 
     def minus(node):
         l_node = node.value.next
@@ -581,27 +577,28 @@ def run_func(op_code_node):
         print result, temp
 
     def run_lambda(node):
-        a=strip_quote(node)
-        b=strip_quote(node.value)
-        c = b.value.value  # 첫번째 변수 값
-        h = a.value  # 첫번째 저장될 값
+        a = strip_quote(node)
+        b = strip_quote(node.value)
+        if b.type is TokenType.LAMBDA:
+            insertTable(b.next.value.value, node.next.value.next.value)
+            return run_expr(node.next.value.value.next.next)
         if b.value.next is not None:
             aa=strip_quote(a)
-            bb = strip_quote(b.value)
-            e=b.value.next  # 두번째 변수 노드
-            a.next  # Node #두번째 저장될 노드
-            f= b.value.next.value  # 두번째 변수 값
+            secondVariable= b.value.next.value  # 두번째 변수 값
             if b.value.next.next is None:
-                j = a.next.value  # 두번째 저장될 값
+                secondValue = a.next.value  # 두번째 저장될 값
+                insertTable(secondVariable, secondValue)
             else:
-                j = aa.value.value # 두번재 저장될 값 (세번째 변수 있을 경우)
-                i = b.value.next.next.value # 세번째 저장될 변수 x
-                ii = aa.value.next #세번째 저장될 값 10
-                insertTable(i, ii)
-                iii=bb.value  # 첫번째 입력될 변수
-                iiii=a.value.value  # 첫번째 저장될 값
-                insertTable(iii,iiii)
-            insertTable(f, j)
+                secondValue = aa.value.value # 두번재 저장될 값 (세번째 변수 있을 경우)
+                insertTable(secondVariable, secondValue)
+                insertTable(b.value.next.next.value, aa.value.next.value) # 세번째 변수와 값
+                firstVariable=strip_quote(b.value).value  # 첫번째 입력될 변수
+                firstValue=a.value.value  # 첫번째 저장될 값
+                insertTable(firstVariable,firstValue)
+                temp6 = run_expr(firstValue.next.next)
+                insertTable(b.value.next.next.value, temp6)
+                secondValue.next.next.next = temp6
+                return run_expr(secondValue.next.next)
         a = run_expr(a)
         insertTable(b.value.value, a.value)
         if lookupTable(b.next.value).type is TokenType.LIST:
@@ -619,8 +616,7 @@ def run_func(op_code_node):
                 makeList = Node(TokenType.LIST, first)
                 makeList = run_expr(makeList)
                 return makeList
-        result = run_expr(b.next)
-        return result
+        return run_expr(b.next)
 
     table = {}
     table['define'] = define
@@ -645,11 +641,7 @@ def run_func(op_code_node):
     if op_code_node.type is TokenType.LIST:
         return table[op_code_node.value.value]
     if op_code_node.value in idTable:
-        a = lookupTable(op_code_node)
-        b = Node(TokenType.LAMBDA,lookupTable(op_code_node))
-        c = Node(TokenType.LIST,idTable[a])
-        return run_expr(c)
-        # op_code_node=idTable[a]
+        return run_expr(Node(TokenType.LIST,idTable[lookupTable(op_code_node)]))
     return table[op_code_node.value]
 
 idTable = {}
@@ -675,8 +667,7 @@ def lookupTable(id):
                 else:
                     temp.next = id.next
             return temp
-        temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
-        return temp1
+        return run_expr(lookupTable(Node(TokenType.LIST, temp)))
     return id
 
 def run_expr(root_node):
@@ -695,11 +686,7 @@ def run_expr(root_node):
         return root_node
     elif root_node.type is TokenType.LIST:
         if root_node.value.value in idTable:
-            temp = root_node.value.next
-            if temp.type is TokenType.ID:
-               x = lookupTable(temp)
-            a = Node(TokenType.LIST, lookupTable(root_node.value))
-            root_node = a
+            root_node = Node(TokenType.LIST, lookupTable(root_node.value))
         return run_list(root_node)
     else:
         print 'Run Expr Error'
@@ -832,9 +819,8 @@ def Test_All():
     Test_method("(lastitem '(1 2 3 4))")
     Test_method("(define square (lambda (x) (* x x)))")
     Test_method("(define yourfunc (lambda (x func) (func x)))")
-    # Test_method("(yourfunc 3 square)")
+    Test_method("(yourfunc 3 square)")
     Test_method("(define multwo (lambda (x) (* 2 x)))")
-
     Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
     Test_method("(newfun square multwo 10)")
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
