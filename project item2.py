@@ -597,7 +597,6 @@ def run_func(op_code_node):
         d=b.value.type  # 첫번째 변수 타입
         i = a.type  # 첫번째 저장될 타입
         insertTable(b.value.value, a.value)
-
         # if b.next.type is TokenType.LIST:
         #     if b.next.value.value in idTable:
         if lookupTable(b.next.value).type is TokenType.LIST:
@@ -617,9 +616,11 @@ def run_func(op_code_node):
                 return makeList
         # elif lookupTable(b.next.value.next).type is TokenType.LIST:
         #     lookupTable(b.next.value)
-
         result = run_expr(b.next)
-
+        # lambda에서 사용한 변수 제거
+        idTable[b.value.value] = None
+        if b.value.next is not None:
+            idTable[b.value.next.value] = None
         return result
 
     table = {}
