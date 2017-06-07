@@ -786,6 +786,11 @@ def Test_method(input):
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
     print print_node(cute_inter)
+    b = node.value.value
+    if cute_inter is not None and b.type is TokenType.LAMBDA:
+        del idTable[b.next.value.value]
+        if b.next.value.next is not None:
+            del idTable[b.next.value.next.value]
 
 
 def Test_All():
@@ -797,19 +802,19 @@ def Test_All():
     #         Test_method(test_input)
     #     except:
     #         print "실행 할 수 없는 입력입니다."
-    Test_method("(define a 1)")
-    Test_method("a")
-    Test_method("(define b '(1 2 3))")
-    Test_method("b")
-    Test_method("(define c (- 5 2))")
-    Test_method("c")
-    Test_method("(define d '(+ 2 3))")
-    Test_method("d")
-    Test_method("(define test b)")
-    Test_method("test")
-    Test_method("(+ a 3)")
+    # Test_method("(define a 1)")
+    # Test_method("a")
+    # Test_method("(define b '(1 2 3))")
+    # Test_method("b")
+    # Test_method("(define c (- 5 2))")
+    # Test_method("c")
+    # Test_method("(define d '(+ 2 3))")
+    # Test_method("d")
+    # Test_method("(define test b)")
+    # Test_method("test")
+    # Test_method("(+ a 3)")
     Test_method("(define a 2)")
-    Test_method("(* a 4)")
+    # Test_method("(* a 4)")
     Test_method("((lambda (x) (* x -2)) 3)")
     Test_method("((lambda (x) (/ x 2)) a)")
     Test_method("((lambda (x y) (* x y)) 3 5)")
