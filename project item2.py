@@ -583,22 +583,27 @@ def run_func(op_code_node):
     def run_lambda(node):
         a=strip_quote(node)
         b=strip_quote(node.value)
+        c = b.value.value  # 첫번째 변수 값
+        h = a.value  # 첫번째 저장될 값
         if b.value.next is not None:
+            aa=strip_quote(a)
+            bb = strip_quote(b.value)
             e=b.value.next  # 두번째 변수 노드
             a.next  # Node #두번째 저장될 노드
             f= b.value.next.value  # 두번째 변수 값
-            j = a.next.value  # 두번째 저장될 값
-            g = b.value.next.type  # 두번째 변수 타입
-            k = a.next.type  # 두번째 저장될 타입
+            if b.value.next.next is None:
+                j = a.next.value  # 두번째 저장될 값
+            else:
+                j = aa.value.value # 두번재 저장될 값 (세번째 변수 있을 경우)
+                i = b.value.next.next.value # 세번째 저장될 변수 x
+                ii = aa.value.next #세번째 저장될 값 10
+                insertTable(i, ii)
+                iii=bb.value  # 첫번째 입력될 변수
+                iiii=a.value.value  # 첫번째 저장될 값
+                insertTable(iii,iiii)
             insertTable(f, j)
         a = run_expr(a)
-        c=b.value.value  # 첫번째 변수 값
-        h = a.value  # 첫번째 저장될 값
-        d=b.value.type  # 첫번째 변수 타입
-        i = a.type  # 첫번째 저장될 타입
         insertTable(b.value.value, a.value)
-        # if b.next.type is TokenType.LIST:
-        #     if b.next.value.value in idTable:
         if lookupTable(b.next.value).type is TokenType.LIST:
             first = lookupTable(b.next.value)
             if lookupTable(b.next.value.next).type is TokenType.LIST:
@@ -614,13 +619,7 @@ def run_func(op_code_node):
                 makeList = Node(TokenType.LIST, first)
                 makeList = run_expr(makeList)
                 return makeList
-        # elif lookupTable(b.next.value.next).type is TokenType.LIST:
-        #     lookupTable(b.next.value)
         result = run_expr(b.next)
-        # lambda에서 사용한 변수 제거
-        idTable[b.value.value] = None
-        if b.value.next is not None:
-            idTable[b.value.next.value] = None
         return result
 
     table = {}
@@ -786,6 +785,11 @@ def Test_method(input):
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
     print print_node(cute_inter)
+    if node.type is TokenType.LIST and node.value.type is TokenType.LIST and node.value.value.type is TokenType.LAMBDA:
+        temp = node.value.value.next.value
+        del idTable[temp.value]
+        if temp.next is not None:
+            del idTable[temp.next.value]
 
 
 def Test_All():
@@ -810,9 +814,9 @@ def Test_All():
     Test_method("(+ a 3)")
     Test_method("(define a 2)")
     Test_method("(* a 4)")
-    Test_method("((lambda (x) (* x -2)) 3)")
-    Test_method("((lambda (x) (/ x 2)) a)")
-    Test_method("((lambda (x y) (* x y)) 3 5)")
+    Test_method("((lambda (x) (* x -2)) 3)") # -6
+    Test_method("((lambda (x) (/ x 2)) a)") # 1
+    Test_method("((lambda (x y) (* x y)) 3 5)") # 15
     Test_method("((lambda (x y) (* x y)) a 5)")
     Test_method("(define plus1 (lambda (x) (+ x 1)))")
     Test_method("(plus1 3)")
@@ -828,10 +832,11 @@ def Test_All():
     Test_method("(lastitem '(1 2 3 4))")
     Test_method("(define square (lambda (x) (* x x)))")
     Test_method("(define yourfunc (lambda (x func) (func x)))")
-    Test_method("(yourfunc 3 square)")
-    # Test_method("(define mul_two (lambda (x) (* 2 x)))")
-    # Test_method("(define new_fun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    # Test_method("(new_fun square mul_two 10)")
-    # Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    # Test_method("(sqrt 4)")
+    # Test_method("(yourfunc 3 square)")
+    Test_method("(define multwo (lambda (x) (* 2 x)))")
+
+    Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
+    Test_method("(newfun square multwo 10)")
+    Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    Test_method("(sqrt 4)")
 Test_All()
