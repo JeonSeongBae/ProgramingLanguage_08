@@ -573,8 +573,8 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next # type define 이후의 순수한 노드의 값 불러오기
         result = strip_quote(l_node).value # id 추출하기
-        temp = insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
-        print result, temp
+        insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
+
 
     def run_lambda(node):
         a = strip_quote(node)
@@ -616,24 +616,25 @@ def run_func(op_code_node):
                 makeList = Node(TokenType.LIST, first)
                 makeList = run_expr(makeList)
                 return makeList
-        is_define = b.next
-        nested_define_Table = []
-        save_define = {}
-        while is_define.value.type is TokenType.DEFINE:
-            save_data = is_define.value.next.value
-            if save_data in idTable:
-                save_define[save_data] = idTable[save_data]
-            nested_define_Table.append(save_data)
-            run_expr(is_define)
-            is_define = is_define.next
+
+        is_define = b.next #Nested 구현을 할 때, 실행부분에 define이 있는 경우 처리하기 위한 is_define변수
+        nested_define_Table = [] #Nested로 define 된 것이 내부에서만 define 되도록 지역변수 배열 만들어줌
+        save_define = {} #미리 전역변수로 선언된 경우. 저장해두기 위한 dictionary자료구조
+        while is_define.value.type is TokenType.DEFINE: #TokenType.DEFINE이라면 처리해줌
+            save_data = is_define.value.next.value #define의 key 값
+            if save_data in idTable: #key값이 idTable에 이미 존재한다면
+                save_define[save_data] = idTable[save_data] #save_define dictionary에 값을 저장
+            nested_define_Table.append(save_data) #nested_define_Table에 해당하는 value 값을 똑같이 넣어둠
+            run_expr(is_define) # define을 해줌
+            is_define = is_define.next #next에 define Token이 또 있는지 확인하기 위해 전진
 
         return_val = run_expr(is_define)
 
-        while nested_define_Table.__len__() is not 0:
-            del idTable[nested_define_Table.pop()]
+        while nested_define_Table.__len__() is not 0: #nested_define_Table이 빌때까지
+            del idTable[nested_define_Table.pop()]  #idTable에서 nested로 Define된 key, Value를 지워줌
 
-        for save_define_data in save_define:
-            idTable[save_define_data] = save_define[save_define_data]
+        for save_define_data in save_define: # save_define에 data가 있다면
+            idTable[save_define_data] = save_define[save_define_data] #그 data를 다시 idTable에 바인딩
 
         return return_val
 
@@ -800,54 +801,52 @@ def Test_method(input):
 
 def Test_All():
     Test_method("(define a 1)")
-    Test_method("a")
+    Test_method("a") #1
     Test_method("(define b '(1 2 3))")
-    Test_method("b")
+    Test_method("b") #'(1 2 3)
     Test_method("(define c (- 5 2))")
-    Test_method("c")
+    Test_method("c") # 3
     Test_method("(define d '(+ 2 3))")
-    Test_method("d")
+    Test_method("d") # '(+2 3)
     Test_method("(define test b)")
-    Test_method("test")
-    Test_method("(+ a 3)")
+    Test_method("test") # '(1 2 3)
+    Test_method("(+ a 3)") # 4
     Test_method("(define a 2)")
-    Test_method("(* a 4)")
+    Test_method("(* a 4)") #  8
     Test_method("((lambda (x) (* x -2)) 3)") # -6
     Test_method("((lambda (x) (/ x 2)) a)") # 1
     Test_method("((lambda (x y) (* x y)) 3 5)") # 15
-    Test_method("((lambda (x y) (* x y)) a 5)")
+    Test_method("((lambda (x y) (* x y)) a 5)") # 10
     Test_method("(define plus1 (lambda (x) (+ x 1)))")
-    Test_method("(plus1 3)")
+    Test_method("(plus1 3)") # 4
     Test_method("(define mul1 (lambda (x) (* x a)))")
-    Test_method("(mul1 a)")
+    Test_method("(mul1 a)") # 4
     Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
-    Test_method("(plus2 4)")
+    Test_method("(plus2 4)") # 6
     Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
-    Test_method("(plus3 a)")
+    Test_method("(plus3 a)") # 5
     Test_method("(define mul2 (lambda (x) (* (plus1 x) -2))) (mul2 7)")
-    Test_method("(mul2 7)")
+    Test_method("(mul2 7)") # -16
     Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
-    Test_method("(lastitem '(1 2 3 4))")
+    Test_method("(lastitem '(1 2 3 4))") # 4
     Test_method("(define square (lambda (x) (* x x)))")
     Test_method("(define yourfunc (lambda (x func) (func x)))")
-    Test_method("(yourfunc 3 square)")
+    Test_method("(yourfunc 3 square)") # 9
     Test_method("(define multwo (lambda (x) (* 2 x)))")
     Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    Test_method("(newfun square multwo 10)")
-    Test_method("(define sqrt (lambda (x) (* 3 x)))")
+    Test_method("(newfun square multwo 10)") # 200
+    # Test_method("(define sqrt (lambda (x) (* 3 x)))") sqrt가 먼저 전역 변수로 선언된 경우 실행이 제대로 되는지 확인하기 위한 Testcod
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    Test_method("(cube 3)")
+    # Test_method("(cube 3)") # 27 Nested define된 결과 또한 잘 실행되는지 확인하기 위한 TestCode
     Test_method("(sqrt 4)")
 
 def Input_All():
     test_input = 0
     while test_input != 'quit':
-        try:
-            test_input = raw_input('> ')
-            print "...",
-            Test_method(test_input)
-        except:
-            print "실행 할 수 없는 입력입니다."
+        test_input = raw_input('> ')
+        print "...",
+        Test_method(test_input)
+
 
 Test_All()
 # Input_All()
