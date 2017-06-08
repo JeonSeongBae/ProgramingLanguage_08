@@ -835,7 +835,7 @@ def Test_All():
     Test_method("(newfun square multwo 10)") # 200
     # Test_method("(define sqrt (lambda (x) (* 3 x)))")
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    Test_method("(cube 3)") # 27
+    # Test_method("(cube 3)") # 27
     Test_method("(sqrt 4)")
 
 def Input_All():
