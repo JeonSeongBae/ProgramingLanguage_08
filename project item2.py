@@ -618,11 +618,11 @@ def run_func(op_code_node):
 
         is_define = b.next #Nested 구현을 할 때, 실행부분에 define이 있는 경우 처리하기 위한 is_define변수
         nested_define_Table = [] #Nested로 define 된 것이 내부에서만 define 되도록 지역변수 배열 만들어줌
-        save_define = {}
+        save_define = {} #미리 전역변수로 선언된 경우. 저장해두기 위한 dictionary자료구조
         while is_define.value.type is TokenType.DEFINE: #TokenType.DEFINE이라면 처리해줌
-            save_data = is_define.value.next.value
-            if save_data in idTable:
-                save_define[save_data] = idTable[save_data]
+            save_data = is_define.value.next.value #define의 key 값
+            if save_data in idTable: #key값이 idTable에 이미 존재한다면
+                save_define[save_data] = idTable[save_data] #save_define dictionary에 값을 저장
             nested_define_Table.append(save_data) #nested_define_Table에 해당하는 value 값을 똑같이 넣어둠
             run_expr(is_define) # define을 해줌
             is_define = is_define.next #next에 define Token이 또 있는지 확인하기 위해 전진
@@ -632,8 +632,8 @@ def run_func(op_code_node):
         while nested_define_Table.__len__() is not 0: #nested_define_Table이 빌때까지
             del idTable[nested_define_Table.pop()]  #idTable에서 nested로 Define된 key, Value를 지워줌
 
-        for save_define_data in save_define:
-            idTable[save_define_data] = save_define[save_define_data]
+        for save_define_data in save_define: # save_define에 data가 있다면
+            idTable[save_define_data] = save_define[save_define_data] #그 data를 다시 idTable에 바인딩
 
         return return_val
 
