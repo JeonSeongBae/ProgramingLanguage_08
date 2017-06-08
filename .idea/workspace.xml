@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="87618b9c-6c63-4556-b838-40dcee99f22c" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/project item2.py" afterPath="$PROJECT_DIR$/project item2.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,8 +24,8 @@
       <file leaf-file-name="project item2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/project item2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="23">
-              <caret line="768" column="10" lean-forward="true" selection-start-line="768" selection-start-column="10" selection-end-line="768" selection-end-column="10" />
+            <state relative-caret-position="237">
+              <caret line="626" column="44" lean-forward="true" selection-start-line="626" selection-start-column="44" selection-end-line="626" selection-end-column="44" />
               <folding />
             </state>
           </provider>
@@ -712,8 +713,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/project item2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="768" column="10" lean-forward="true" selection-start-line="768" selection-start-column="10" selection-end-line="768" selection-end-column="10" />
+        <state relative-caret-position="237">
+          <caret line="626" column="44" lean-forward="true" selection-start-line="626" selection-start-column="44" selection-end-line="626" selection-end-column="44" />
           <folding />
         </state>
       </provider>

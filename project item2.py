@@ -615,16 +615,17 @@ def run_func(op_code_node):
                 makeList = Node(TokenType.LIST, first)
                 makeList = run_expr(makeList)
                 return makeList
-        is_define = b.next
+
+        is_define = b.next #Nested 구현을 할 때, 실행부분에 define이 있는 경우 처리하기 위한 is_define변수
         nested_define_Table = []
         save_define = {}
-        while is_define.value.type is TokenType.DEFINE:
+        while is_define.value.type is TokenType.DEFINE: #TokenType.DEFINE이라면 처리해줌
             save_data = is_define.value.next.value
             if save_data in idTable:
                 save_define[save_data] = idTable[save_data]
             nested_define_Table.append(save_data)
-            run_expr(is_define)
-            is_define = is_define.next
+            run_expr(is_define) # define을 해줌
+            is_define = is_define.next #next에 define Token이 또 있는지 확인하기 위해 전진
 
         return_val = run_expr(is_define)
 
