@@ -575,20 +575,20 @@ def run_func(op_code_node):
         result = strip_quote(l_node).value # id 추출하기
         insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
 
-
+    # 함수 lambda 정의
     def run_lambda(node):
         a = strip_quote(node)
         b = strip_quote(node.value)
-        if b.type is TokenType.LAMBDA:
+        if b.type is TokenType.LAMBDA: # Type이 lambda 일때
             insertTable(b.next.value.value, node.next.value.next.value)
             return run_expr(node.next.value.value.next.next)
-        if b.value.next is not None:
+        if b.value.next is not None: # .next 값이 존재할때
             aa=strip_quote(a)
             secondVariable= b.value.next.value  # 두번째 변수 값
-            if b.value.next.next is None:
+            if b.value.next.next is None: # .next 값이 존재하지 않을때
                 secondValue = a.next.value  # 두번째 저장될 값
                 insertTable(secondVariable, secondValue)
-            else:
+            else: # .next.next 값이 존재할때
                 secondValue = aa.value.value # 두번재 저장될 값 (세번째 변수 있을 경우)
                 insertTable(secondVariable, secondValue)
                 insertTable(b.value.next.next.value, aa.value.next.value) # 세번째 변수와 값
@@ -601,15 +601,15 @@ def run_func(op_code_node):
                 return run_expr(secondValue.next.next)
         a = run_expr(a)
         insertTable(b.value.value, a.value)
-        if lookupTable(b.next.value).type is TokenType.LIST:
+        if lookupTable(b.next.value).type is TokenType.LIST: # Type 이 LIST일때
             first = lookupTable(b.next.value)
-            if lookupTable(b.next.value.next).type is TokenType.LIST:
+            if lookupTable(b.next.value.next).type is TokenType.LIST: # Type 이 LIST일때
                 second = lookupTable(b.next.value.next)
                 first.set_last_next(second)
                 makeList = Node(TokenType.LIST, first)
                 makeList = run_expr(makeList)
                 return makeList
-            else:
+            else: # Type 이 LIST 이외일때
                 second = b.next.value.next
                 second = lookupTable(second)
                 first.set_last_next(second)
@@ -665,6 +665,7 @@ def run_func(op_code_node):
     return table[op_code_node.value]
 
 idTable = {}
+#함수 insertTable 정의
 def insertTable(id, value):
     idTable[id] = value
     return idTable[id]
@@ -839,7 +840,7 @@ def Test_All():
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
     # Test_method("(cube 3)") # 27 Nested define된 결과 또한 잘 실행되는지 확인하기 위한 TestCode
     Test_method("(sqrt 4)")
-
+#함수 만약 입력을 원한다면 Input_All() 호출
 def Input_All():
     test_input = 0
     while test_input != 'quit':
