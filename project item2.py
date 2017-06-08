@@ -625,7 +625,9 @@ def run_func(op_code_node):
                 return run_expr(j.next.next)
         h = a.value  # 첫번째 저장될 값
         a = run_expr(a)
+
         insertTable(b.value.value, a.value)
+
         if lookupTable(b.next.value).type is TokenType.LIST:
             first = lookupTable(b.next.value)
             if lookupTable(b.next.value.next).type is TokenType.LIST:
