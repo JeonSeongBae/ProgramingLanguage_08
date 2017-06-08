@@ -392,7 +392,6 @@ def run_func(op_code_node):
 
     def car(node):
         l_node = run_expr(node.value.next)
-
         result = strip_quote(l_node).value
         if result.type is not TokenType.LIST:
             return result
@@ -431,7 +430,6 @@ def run_func(op_code_node):
         r_node = l_node.next
         new_l_node = strip_quote(run_expr(l_node))
         new_r_node = strip_quote(run_expr(r_node))
-
         if (new_l_node.type or new_r_node.type) is not TokenType.INT:
             return Node(TokenType.FALSE)
         if new_l_node.value == new_r_node.value:
@@ -456,9 +454,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node.next)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        a = int(lookupTable(l_node).value)
-        b= int(lookupTable(l_node.next).value)
-        return Node(l_node.type, a+b)
+        return Node(l_node.type, int(lookupTable(l_node).value)+int(lookupTable(l_node.next).value))
 
     def minus(node):
         l_node = node.value.next
@@ -482,9 +478,7 @@ def run_func(op_code_node):
             n_node = run_expr(l_node)
             l_node.next.value = n_node.value
             l_node.next.type = n_node.type
-        dfawwa = int(lookupTable(l_node).value)
-        bafqeqf= int(lookupTable(l_node.next).value)
-        return Node(l_node.type, dfawwa * bafqeqf)
+        return Node(l_node.type, int(lookupTable(l_node).value) * int(lookupTable(l_node.next).value))
 
     def divide(node):
         l_node = node.value.next
@@ -577,57 +571,36 @@ def run_func(op_code_node):
         return wrapper_new_list
     # 함수 define 정의
     def define(node):
-        if node is None:
-            return
-        if node.type is TokenType.LIST:
-            l_node = node.value.next # type define 이후의 순수한 노드의 값 불러오기
-            re = strip_quote(l_node)
-            if re is None:
-                re = l_node.next
-            else:
-                re = re.next
-            if node.value.type is TokenType.DEFINE:
-                result = strip_quote(l_node).value  # id 추출하기
-                temp = insertTable(result, l_node.next.value)  # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
-            define(re) # recursive
+        l_node = node.value.next # type define 이후의 순수한 노드의 값 불러오기
+        result = strip_quote(l_node).value # id 추출하기
+        temp = insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
+        print result, temp
 
     def run_lambda(node):
         a = strip_quote(node)
-        b=strip_quote(node.value)
-
+        b = strip_quote(node.value)
         if b.type is TokenType.LAMBDA:
-            b = b.next
-            temp = node.next.value.value.next.next
-            temp2 = b.value.value
-            temp3 = node.next.value.next.value
-            insertTable(temp2, temp3)
-            return run_expr(temp)
+            insertTable(b.next.value.value, node.next.value.next.value)
+            return run_expr(node.next.value.value.next.next)
         if b.value.next is not None:
             aa=strip_quote(a)
-            e=b.value.next  # 두번째 변수 노드
-            a.next  # Node #두번째 저장될 노드
-            f= b.value.next.value  # 두번째 변수 값
+            secondVariable= b.value.next.value  # 두번째 변수 값
             if b.value.next.next is None:
-                j = a.next.value  # 두번째 저장될 값
-                insertTable(f, j)
+                secondValue = a.next.value  # 두번째 저장될 값
+                insertTable(secondVariable, secondValue)
             else:
-                j = aa.value.value # 두번재 저장될 값 (세번째 변수 있을 경우)
-                insertTable(f, j)
-                i = b.value.next.next.value # 세번째 저장될 변수 x
-                ii = aa.value.next.value # 세번째 저장될 값 10
-                insertTable(i, ii)
-                iii=strip_quote(b.value).value  # 첫번째 입력될 변수
-                firstvalue=a.value.value  # 첫번째 저장될 값
-                insertTable(iii,firstvalue)
-                temp6 = run_expr(firstvalue.next.next)
-                insertTable(i, temp6)
-                j.next.next.next = temp6
-                return run_expr(j.next.next)
-        h = a.value  # 첫번째 저장될 값
+                secondValue = aa.value.value # 두번재 저장될 값 (세번째 변수 있을 경우)
+                insertTable(secondVariable, secondValue)
+                insertTable(b.value.next.next.value, aa.value.next.value) # 세번째 변수와 값
+                firstVariable=strip_quote(b.value).value  # 첫번째 입력될 변수
+                firstValue=a.value.value  # 첫번째 저장될 값
+                insertTable(firstVariable,firstValue)
+                temp6 = run_expr(firstValue.next.next)
+                insertTable(b.value.next.next.value, temp6)
+                secondValue.next.next.next = temp6
+                return run_expr(secondValue.next.next)
         a = run_expr(a)
-
         insertTable(b.value.value, a.value)
-
         if lookupTable(b.next.value).type is TokenType.LIST:
             first = lookupTable(b.next.value)
             if lookupTable(b.next.value.next).type is TokenType.LIST:
@@ -643,8 +616,26 @@ def run_func(op_code_node):
                 makeList = Node(TokenType.LIST, first)
                 makeList = run_expr(makeList)
                 return makeList
-        result = run_expr(b.next)
-        return result
+        is_define = b.next
+        nested_define_Table = []
+        save_define = {}
+        while is_define.value.type is TokenType.DEFINE:
+            save_data = is_define.value.next.value
+            if save_data in idTable:
+                save_define[save_data] = idTable[save_data]
+            nested_define_Table.append(save_data)
+            run_expr(is_define)
+            is_define = is_define.next
+
+        return_val = run_expr(is_define)
+
+        while nested_define_Table.__len__() is not 0:
+            del idTable[nested_define_Table.pop()]
+
+        for save_define_data in save_define:
+            idTable[save_define_data] = save_define[save_define_data]
+
+        return return_val
 
     table = {}
     table['define'] = define
@@ -669,11 +660,7 @@ def run_func(op_code_node):
     if op_code_node.type is TokenType.LIST:
         return table[op_code_node.value.value]
     if op_code_node.value in idTable:
-        a = lookupTable(op_code_node)
-        b = Node(TokenType.LAMBDA,lookupTable(op_code_node))
-        c = Node(TokenType.LIST,idTable[a])
-        return run_expr(c)
-        # op_code_node=idTable[a]
+        return run_expr(Node(TokenType.LIST,idTable[lookupTable(op_code_node)]))
     return table[op_code_node.value]
 
 idTable = {}
@@ -692,15 +679,14 @@ def lookupTable(id):
         elif  temp.type is TokenType.ID: #함수 id의 value 값의 type이 ID일 경우
             return temp
         elif temp.type is TokenType.LAMBDA: #함수 id의 value 값의 type이 LAMBDA일 경우
-            temp = Node(TokenType.LIST, temp) #함수 temp에 Node를 생성 
+            temp = Node(TokenType.LIST, temp) #함수 temp에 Node를 생성
             if id.next is not None:
                 if id.next.type is TokenType.ID:
                     temp.next = Node(lookupTable(id.next).type, lookupTable(id.next))
                 else:
                     temp.next = id.next
             return temp
-        temp1 = run_expr(lookupTable(Node(TokenType.LIST, temp)))
-        return temp1
+        return run_expr(lookupTable(Node(TokenType.LIST, temp)))
     return id
 
 def run_expr(root_node):
@@ -719,11 +705,7 @@ def run_expr(root_node):
         return root_node
     elif root_node.type is TokenType.LIST:
         if root_node.value.value in idTable:
-            temp = root_node.value.next
-            if temp.type is TokenType.ID:
-               x = lookupTable(temp)
-            a = Node(TokenType.LIST, lookupTable(root_node.value))
-            root_node = a
+            root_node = Node(TokenType.LIST, lookupTable(root_node.value))
         return run_list(root_node)
     else:
         print 'Run Expr Error'
@@ -808,32 +790,15 @@ def Test_method(input):
     test_basic_paser = BasicPaser(test_tokens)
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
-    if cute_inter is not None:
-        print input
-        print print_node(cute_inter)
+    print print_node(cute_inter)
     if node.type is TokenType.LIST and node.value.type is TokenType.LIST and node.value.value.type is TokenType.LAMBDA:
         temp = node.value.value.next.value
-        delvar(temp)
-        # del idTable[temp.value]
-        # if temp.next is not None:
-        #     del idTable[temp.next.value]
-        #     if temp.next.next is not None:
-        #         del idTable[temp.next.next.value]
-def delvar(temp):
-    del idTable[temp.value]
-    if temp.next is not None:
-        delvar(temp.next)
+        del idTable[temp.value]
+        if temp.next is not None:
+             del idTable[temp.next.value]
 
 
 def Test_All():
-    # test_input = 0
-    # while test_input != 'quit':
-    #     try:
-    #         test_input = raw_input('> ')
-    #         print "...",
-    #         Test_method(test_input)
-    #     except:
-    #         print "실행 할 수 없는 입력입니다."
     Test_method("(define a 1)")
     Test_method("a")
     Test_method("(define b '(1 2 3))")
@@ -869,6 +834,20 @@ def Test_All():
     Test_method("(define multwo (lambda (x) (* 2 x)))")
     Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
     Test_method("(newfun square multwo 10)")
+    Test_method("(define sqrt (lambda (x) (* 3 x)))")
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
+    Test_method("(cube 3)")
     Test_method("(sqrt 4)")
+
+def Input_All():
+    test_input = 0
+    while test_input != 'quit':
+        try:
+            test_input = raw_input('> ')
+            print "...",
+            Test_method(test_input)
+        except:
+            print "실행 할 수 없는 입력입니다."
+
 Test_All()
+# Input_All()
