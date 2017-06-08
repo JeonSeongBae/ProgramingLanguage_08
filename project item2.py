@@ -575,6 +575,7 @@ def run_func(op_code_node):
         result = strip_quote(l_node).value # id 추출하기
         insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
 
+
     def run_lambda(node):
         a = strip_quote(node)
         b = strip_quote(node.value)
