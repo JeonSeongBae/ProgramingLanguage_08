@@ -833,9 +833,9 @@ def Test_All():
     Test_method("(define multwo (lambda (x) (* 2 x)))")
     Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
     Test_method("(newfun square multwo 10)") # 200
-    # Test_method("(define sqrt (lambda (x) (* 3 x)))")
+    # Test_method("(define sqrt (lambda (x) (* 3 x)))") sqrt가 먼저 전역 변수로 선언된 경우 실행이 제대로 되는지 확인하기 위한 Testcod
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    # Test_method("(cube 3)") # 27
+    # Test_method("(cube 3)") # 27 Nested define된 결과 또한 잘 실행되는지 확인하기 위한 TestCode
     Test_method("(sqrt 4)")
 
 def Input_All():
