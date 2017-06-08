@@ -573,8 +573,7 @@ def run_func(op_code_node):
     def define(node):
         l_node = node.value.next # type define 이후의 순수한 노드의 값 불러오기
         result = strip_quote(l_node).value # id 추출하기
-        temp = insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
-        print result, temp
+        insertTable(result, l_node.next.value) # insertTable 함수를 이용하여 idTable에 { id : value } 값 저장
 
     def run_lambda(node):
         a = strip_quote(node)
@@ -800,54 +799,52 @@ def Test_method(input):
 
 def Test_All():
     Test_method("(define a 1)")
-    Test_method("a")
+    Test_method("a") #1
     Test_method("(define b '(1 2 3))")
-    Test_method("b")
+    Test_method("b") #'(1 2 3)
     Test_method("(define c (- 5 2))")
-    Test_method("c")
+    Test_method("c") # 3
     Test_method("(define d '(+ 2 3))")
-    Test_method("d")
+    Test_method("d") # '(+2 3)
     Test_method("(define test b)")
-    Test_method("test")
-    Test_method("(+ a 3)")
+    Test_method("test") # '(1 2 3)
+    Test_method("(+ a 3)") # 4
     Test_method("(define a 2)")
-    Test_method("(* a 4)")
+    Test_method("(* a 4)") #  8
     Test_method("((lambda (x) (* x -2)) 3)") # -6
     Test_method("((lambda (x) (/ x 2)) a)") # 1
     Test_method("((lambda (x y) (* x y)) 3 5)") # 15
-    Test_method("((lambda (x y) (* x y)) a 5)")
+    Test_method("((lambda (x y) (* x y)) a 5)") # 10
     Test_method("(define plus1 (lambda (x) (+ x 1)))")
-    Test_method("(plus1 3)")
+    Test_method("(plus1 3)") # 4
     Test_method("(define mul1 (lambda (x) (* x a)))")
-    Test_method("(mul1 a)")
+    Test_method("(mul1 a)") # 4
     Test_method("(define plus2 (lambda (x) (+ (plus1 x) 1)))")
-    Test_method("(plus2 4)")
+    Test_method("(plus2 4)") # 6
     Test_method("(define plus3 (lambda (x) (+ (plus1 x) a)))")
-    Test_method("(plus3 a)")
+    Test_method("(plus3 a)") # 5
     Test_method("(define mul2 (lambda (x) (* (plus1 x) -2))) (mul2 7)")
-    Test_method("(mul2 7)")
+    Test_method("(mul2 7)") # -16
     Test_method("(define lastitem (lambda (ls) (cond ((null? (cdr ls)) (car ls)) (#T (lastitem (cdr ls))))))")
-    Test_method("(lastitem '(1 2 3 4))")
+    Test_method("(lastitem '(1 2 3 4))") # 4
     Test_method("(define square (lambda (x) (* x x)))")
     Test_method("(define yourfunc (lambda (x func) (func x)))")
-    Test_method("(yourfunc 3 square)")
+    Test_method("(yourfunc 3 square)") # 9
     Test_method("(define multwo (lambda (x) (* 2 x)))")
     Test_method("(define newfun (lambda (fun1 fun2 x) (fun2 (fun1 x))))")
-    Test_method("(newfun square multwo 10)")
-    Test_method("(define sqrt (lambda (x) (* 3 x)))")
+    Test_method("(newfun square multwo 10)") # 200
+    # Test_method("(define sqrt (lambda (x) (* 3 x)))")
     Test_method("(define cube (lambda (n) (define sqrt (lambda (n) (* n n))) (* (sqrt n) n)))")
-    Test_method("(cube 3)")
+    Test_method("(cube 3)") # 27
     Test_method("(sqrt 4)")
 
 def Input_All():
     test_input = 0
     while test_input != 'quit':
-        try:
-            test_input = raw_input('> ')
-            print "...",
-            Test_method(test_input)
-        except:
-            print "실행 할 수 없는 입력입니다."
+        test_input = raw_input('> ')
+        print "...",
+        Test_method(test_input)
+
 
 Test_All()
 # Input_All()
