@@ -792,7 +792,8 @@ def Test_method(input):
     test_basic_paser = BasicPaser(test_tokens)
     node = test_basic_paser.parse_expr()
     cute_inter = run_expr(node)
-    print print_node(cute_inter)
+    if cute_inter is not None:
+        print "...", print_node(cute_inter)
     if node.type is TokenType.LIST and node.value.type is TokenType.LIST and node.value.value.type is TokenType.LAMBDA:
         temp = node.value.value.next.value
         del idTable[temp.value]
@@ -845,9 +846,8 @@ def Input_All():
     test_input = 0
     while test_input != 'quit':
         test_input = raw_input('> ')
-        print "...",
         Test_method(test_input)
 
 
-Test_All()
-# Input_All()
+# Test_All()
+Input_All()
